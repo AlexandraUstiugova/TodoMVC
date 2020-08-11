@@ -2,7 +2,7 @@ plugins {
     id 'java'
 }
 
-group 'com.herokuapp.todomvc4tasj'
+group 'com.taotas'
 version '1.0-SNAPSHOT'
 
 sourceCompatibility = 1.8
