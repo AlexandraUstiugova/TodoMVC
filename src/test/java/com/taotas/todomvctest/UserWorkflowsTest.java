@@ -20,52 +20,50 @@ public class UserWorkflowsTest {
                         ".hasOwnProperty('click')"));
 
         add("a", "b", "c");
-        todoList.shouldHave(exactTexts("a", "b", "c"));
-        todoCount.shouldHave(exactText("3"));
+        todosShouldBe("a", "b", "c");
+        itemsLeftShouldBe(3);
 
-        edit("b", " edited");
+        // Edit
+        findTodoByText("b").doubleClick();
+        changeTodo(" edited").pressEnter();
 
-        complete("b edited");
-        clear();
-        todoList.shouldHave(exactTexts("a", "c"));
+        // Complete and Clear
+        findTodoByText("b edited").find(".toggle").click();
+        $("#clear-completed").click();
+        todosShouldBe("a", "c");
 
-        cancelEdit("c", " to be canceled");
+        // Cancel edit
+        findTodoByText("c").doubleClick();
+        changeTodo(" to be canceled").pressEscape();
 
-        delete("c");
-        todoList.shouldHave(exactTexts("a"));
-        todoCount.shouldHave(exactText("1"));
+        // Delete
+        findTodoByText("c").hover().find(".destroy").click();
+        todosShouldBe("a");
+        itemsLeftShouldBe(1);
     }
 
-    private ElementsCollection todoList = $$("#todo-list>li");
-    private SelenideElement todoCount = $("#todo-count>strong");
+    private ElementsCollection todos = $$("#todo-list>li");
 
-    private void add(String... taskTexts) {
-        for (String text: taskTexts) {
+    private void add(String... todoTexts) {
+        for (String text: todoTexts) {
             element("#new-todo").append(text).pressEnter();
         }
     }
 
-    private void edit(String taskToChange, String addChange) {
-        todoList.findBy(exactText(taskToChange)).doubleClick();
-        todoList.findBy(cssClass("editing")).find(".edit").append(addChange)
-                .pressEnter();
+    private void todosShouldBe(String... todoTexts) {
+        todos.shouldHave(exactTexts(todoTexts));
     }
 
-    private void complete(String taskText) {
-        todoList.findBy(exactText(taskText)).find(".toggle").click();
+    private void itemsLeftShouldBe(int number) {
+        $("#todo-count>strong").shouldHave(exactText(
+                Integer.toString(number)));
     }
 
-    private void clear() {
-        $("#clear-completed").click();
+    private SelenideElement findTodoByText(String text) {
+        return todos.findBy(exactText(text));
     }
 
-    private void cancelEdit(String taskToChange, String addChange) {
-        todoList.findBy(exactText(taskToChange)).doubleClick();
-        todoList.findBy(cssClass("editing")).find(".edit").append(addChange)
-                .pressEscape();
-    }
-
-    private void delete(String taskText) {
-        todoList.findBy(exactText(taskText)).hover().find(".destroy").click();
+    private SelenideElement changeTodo(String text) {
+        return todos.findBy(cssClass("editing")).find(".edit").append(text);
     }
 }
