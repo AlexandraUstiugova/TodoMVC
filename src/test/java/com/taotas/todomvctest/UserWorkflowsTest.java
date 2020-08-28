@@ -1,5 +1,6 @@
 package com.taotas.todomvctest;
 
+import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.ElementsCollection;
 import com.codeborne.selenide.SelenideElement;
 import org.junit.jupiter.api.Test;
@@ -27,7 +28,7 @@ public class UserWorkflowsTest {
         changeTodo("b", " edited").pressEnter();
 
         // Complete and Clear
-        findTodoByText("b edited").find(".toggle").click();
+        todo("b edited").find(".toggle").click();
         $("#clear-completed").click();
         todosShouldBe("a", "c");
 
@@ -35,7 +36,7 @@ public class UserWorkflowsTest {
         changeTodo("c", " to be canceled").pressEscape();
 
         // Delete
-        findTodoByText("c").hover().find(".destroy").click();
+        todo("c").hover().find(".destroy").click();
         todosShouldBe("a");
         itemsLeftShouldBe(1);
     }
@@ -57,12 +58,16 @@ public class UserWorkflowsTest {
                 Integer.toString(number)));
     }
 
-    private SelenideElement findTodoByText(String text) {
-        return todos.findBy(exactText(text));
+    private SelenideElement todoBy (Condition condition) {
+        return todos.findBy(condition);
+    }
+
+    private SelenideElement todo(String text) {
+        return todoBy(exactText(text));
     }
 
     private SelenideElement changeTodo(String oldText, String newText) {
-        findTodoByText(oldText).doubleClick();
-        return todos.findBy(cssClass("editing")).find(".edit").append(newText);
+        todo(oldText).doubleClick();
+        return todoBy(cssClass("editing")).find(".edit").append(newText);
     }
 }
