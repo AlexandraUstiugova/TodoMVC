@@ -24,8 +24,7 @@ public class UserWorkflowsTest {
         itemsLeftShouldBe(3);
 
         // Edit
-        findTodoByText("b").doubleClick();
-        changeTodo(" edited").pressEnter();
+        changeTodo("b", " edited").pressEnter();
 
         // Complete and Clear
         findTodoByText("b edited").find(".toggle").click();
@@ -33,8 +32,7 @@ public class UserWorkflowsTest {
         todosShouldBe("a", "c");
 
         // Cancel edit
-        findTodoByText("c").doubleClick();
-        changeTodo(" to be canceled").pressEscape();
+        changeTodo("c", " to be canceled").pressEscape();
 
         // Delete
         findTodoByText("c").hover().find(".destroy").click();
@@ -63,7 +61,8 @@ public class UserWorkflowsTest {
         return todos.findBy(exactText(text));
     }
 
-    private SelenideElement changeTodo(String text) {
-        return todos.findBy(cssClass("editing")).find(".edit").append(text);
+    private SelenideElement changeTodo(String oldText, String newText) {
+        findTodoByText(oldText).doubleClick();
+        return todos.findBy(cssClass("editing")).find(".edit").append(newText);
     }
 }
