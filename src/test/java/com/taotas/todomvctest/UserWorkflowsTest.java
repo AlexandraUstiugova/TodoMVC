@@ -1,6 +1,5 @@
 package com.taotas.todomvctest;
 
-import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.ElementsCollection;
 import com.codeborne.selenide.SelenideElement;
 import org.junit.jupiter.api.Test;
@@ -20,54 +19,44 @@ public class UserWorkflowsTest {
                 "return $._data($('#clear-completed').get(0), 'events')" +
                         ".hasOwnProperty('click')"));
 
-        add("a", "b", "c");
-        todosShouldBe("a", "b", "c");
-        itemsLeftShouldBe(3);
+        // Create
+        $("#new-todo").append("a").pressEnter();
+        $("#new-todo").append("b").pressEnter();
+        $("#new-todo").append("c").pressEnter();
+        todos.shouldHave(exactTexts("a", "b", "c"));
+        itemsLeftCounter.shouldHave(exactText("3"));
 
         // Edit
         startEdit("b", " edited").pressEnter();
 
         // Complete and Clear
-        todo("b edited").find(".toggle").click();
+        complete("b edited");
         $("#clear-completed").click();
-        todosShouldBe("a", "c");
+        todos.shouldHave(exactTexts("a", "c"));
 
         // Cancel edit
         startEdit("c", " to be canceled").pressEscape();
 
-        // Delete
-        todo("c").hover().find(".destroy").click();
-        todosShouldBe("a");
-        itemsLeftShouldBe(1);
+        delete("c");
+        todos.shouldHave(exactTexts("a"));
+        itemsLeftCounter.shouldHave(exactText("1"));
     }
 
     private ElementsCollection todos = $$("#todo-list>li");
-
-    private void add(String... texts) {
-        for (String text: texts) {
-            element("#new-todo").append(text).pressEnter();
-        }
-    }
-
-    private void todosShouldBe(String... texts) {
-        todos.shouldHave(exactTexts(texts));
-    }
-
-    private void itemsLeftShouldBe(int number) {
-        $("#todo-count>strong").shouldHave(exactText(
-                Integer.toString(number)));
-    }
-
-    private SelenideElement todoBy(Condition condition) {
-        return todos.findBy(condition);
-    }
-
-    private SelenideElement todo(String text) {
-        return todoBy(exactText(text));
-    }
+    private SelenideElement itemsLeftCounter = $("#todo-count>strong");
 
     private SelenideElement startEdit(String text, String textToAdd) {
-        todo(text).doubleClick();
-        return todoBy(cssClass("editing")).find(".edit").append(textToAdd);
+        todos.findBy(exactText(text)).doubleClick();
+        return todos.findBy(cssClass("editing")).find(".edit").append(textToAdd);
+    }
+
+    private void complete(String text) {
+        todos.findBy(exactText(text)).find(".toggle").click();
+    }
+
+    private void delete(String text) {
+        todos.findBy(exactText(text)).hover().find(".destroy").click();
     }
 }
+
+
