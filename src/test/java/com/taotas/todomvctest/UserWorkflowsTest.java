@@ -1,6 +1,7 @@
 package com.taotas.todomvctest;
 
 import com.codeborne.selenide.ElementsCollection;
+import com.codeborne.selenide.Selenide;
 import com.codeborne.selenide.SelenideElement;
 import org.junit.jupiter.api.Test;
 
@@ -15,43 +16,64 @@ public class UserWorkflowsTest {
     @Test
     void todosCommonManagement() {
         open("https://todomvc4tasj.herokuapp.com/");
-        Wait().until(jsReturnsValue(
-                "return $._data($('#clear-completed').get(0), 'events')" +
-                        ".hasOwnProperty('click')"));
 
-        // Create
-        $("#new-todo").append("a").pressEnter();
-        $("#new-todo").append("b").pressEnter();
-        $("#new-todo").append("c").pressEnter();
-        todos.shouldHave(exactTexts("a", "b", "c"));
-        itemsLeftCounter.shouldHave(exactText("3"));
+        add("a", "b", "c");
+        todosShouldBe("a", "b", "c");
+        itemsLeftShouldBe(3);
 
-        // Edit
-        startEdit("b", " edited").pressEnter();
+        edit("b", " edited");
 
-        // Complete and Clear
-        complete("b edited");
-        $("#clear-completed").click();
+        toggle("b edited");
+        clearCompleted();
         todos.shouldHave(exactTexts("a", "c"));
 
-        // Cancel edit
-        startEdit("c", " to be canceled").pressEscape();
+        cancelEdit("c", " to be canceled");
 
         delete("c");
-        todos.shouldHave(exactTexts("a"));
-        itemsLeftCounter.shouldHave(exactText("1"));
+        todosShouldBe("a");
+        itemsLeftShouldBe(1);
     }
 
     private ElementsCollection todos = $$("#todo-list>li");
-    private SelenideElement itemsLeftCounter = $("#todo-count>strong");
 
-    private SelenideElement startEdit(String text, String textToAdd) {
-        todos.findBy(exactText(text)).doubleClick();
-        return todos.findBy(cssClass("editing")).find(".edit").append(textToAdd);
+    private void open(String link) {
+        Selenide.open(link);
+        Wait().until(jsReturnsValue(
+                "return $._data($('#clear-completed').get(0), 'events')" +
+                        ".hasOwnProperty('click')"));
     }
 
-    private void complete(String text) {
+    private void add(String... texts) {
+        for (String text: texts) {
+            element("#new-todo").append(text).pressEnter();
+        }
+    }
+
+    private void todosShouldBe(String... texts) {
+        todos.shouldHave(exactTexts(texts));
+    }
+
+    private void itemsLeftShouldBe(int number) {
+        $("#todo-count>strong").shouldHave(exactText(
+                Integer.toString(number)));
+    }
+
+    private SelenideElement edit(String text, String textToAdd) {
+        todos.findBy(exactText(text)).doubleClick();
+        return todos.findBy(cssClass("editing")).find(".edit").append(textToAdd).pressEnter();
+    }
+
+    private SelenideElement cancelEdit(String text, String textToAdd) {
+        todos.findBy(exactText(text)).doubleClick();
+        return todos.findBy(cssClass("editing")).find(".edit").append(textToAdd).pressEscape();
+    }
+
+    private void toggle(String text) {
         todos.findBy(exactText(text)).find(".toggle").click();
+    }
+
+    private void clearCompleted() {
+        $("#clear-completed").click();
     }
 
     private void delete(String text) {
