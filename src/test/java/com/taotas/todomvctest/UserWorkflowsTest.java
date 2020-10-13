@@ -1,6 +1,8 @@
 package com.taotas.todomvctest;
 
+import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.Configuration;
+import com.codeborne.selenide.ElementsCollection;
 import com.codeborne.selenide.SelenideElement;
 import org.junit.jupiter.api.Test;
 
@@ -35,11 +37,14 @@ public class UserWorkflowsTest {
         itemsLeftShouldBe(1);
     }
 
+    private ElementsCollection todos = $$("#todo-list>li");
+
     private void openTodoMvc() {
+        String clearCompletedIsClickableScript = "return $._data(" +
+                "$('#clear-completed').get(0), 'events')" +
+                ".hasOwnProperty('click')";
         open("https://todomvc4tasj.herokuapp.com/");
-        Wait().until(jsReturnsValue(
-                "return $._data($('#clear-completed').get(0), 'events')" +
-                        ".hasOwnProperty('click')"));
+        Wait().until(jsReturnsValue(clearCompletedIsClickableScript));
     }
 
     private void add(String... texts) {
@@ -49,7 +54,7 @@ public class UserWorkflowsTest {
     }
 
     private void todosShouldBe(String... texts) {
-        $$("#todo-list>li").shouldHave(exactTexts(texts));
+        todos.shouldHave(exactTexts(texts));
     }
 
     private void itemsLeftShouldBe(int number) {
@@ -57,21 +62,29 @@ public class UserWorkflowsTest {
                 Integer.toString(number)));
     }
 
-    private SelenideElement edit(String oldText, String newText) {
-        $$("#todo-list>li").findBy(exactText(oldText)).doubleClick();
-        return $$("#todo-list>li").findBy(cssClass("editing")).
-                find(".edit").setValue(newText).pressEnter();
+    private SelenideElement todoBy(Condition condition) {
+        return todos.findBy(condition);
     }
 
-    private SelenideElement cancelEdit(String oldText, String newText) {
-        $$("#todo-list>li").findBy(exactText(oldText)).doubleClick();
-        return $$("#todo-list>li").findBy(cssClass("editing")).
-                find(".edit").setValue(newText).pressEscape();
+    private SelenideElement todo(String text) {
+        return todoBy(exactText(text));
+    }
+
+    private SelenideElement startEdit(String oldText, String newText) {
+        todo(oldText).doubleClick();
+        return todoBy(cssClass("editing")).find(".edit").setValue(newText);
+    }
+
+    private void edit(String oldText, String newText) {
+        startEdit(oldText, newText).pressEnter();
+    }
+
+    private void cancelEdit(String oldText, String newText) {
+        startEdit(oldText, newText).pressEscape();
     }
 
     private void toggle(String text) {
-        $$("#todo-list>li").findBy(exactText(text)).
-                find(".toggle").click();
+        todo(text).find(".toggle").click();
     }
 
     private void clearCompleted() {
@@ -79,8 +92,7 @@ public class UserWorkflowsTest {
     }
 
     private void delete(String text) {
-        $$("#todo-list>li").findBy(exactText(text)).hover().
-                find(".destroy").click();
+        todo(text).hover().find(".destroy").click();
     }
 }
 
