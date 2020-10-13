@@ -1,6 +1,5 @@
 package com.taotas.todomvctest;
 
-import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.Configuration;
 import com.codeborne.selenide.ElementsCollection;
 import com.codeborne.selenide.SelenideElement;
@@ -62,17 +61,9 @@ public class UserWorkflowsTest {
                 Integer.toString(number)));
     }
 
-    private SelenideElement todoBy(Condition condition) {
-        return todos.findBy(condition);
-    }
-
-    private SelenideElement todo(String text) {
-        return todoBy(exactText(text));
-    }
-
     private SelenideElement startEdit(String oldText, String newText) {
-        todo(oldText).doubleClick();
-        return todoBy(cssClass("editing")).find(".edit").setValue(newText);
+        todos.findBy(exactText(oldText)).doubleClick();
+        return todos.findBy(cssClass("editing")).find(".edit").setValue(newText);
     }
 
     private void edit(String oldText, String newText) {
@@ -84,7 +75,7 @@ public class UserWorkflowsTest {
     }
 
     private void toggle(String text) {
-        todo(text).find(".toggle").click();
+        todos.findBy(exactText(text)).find(".toggle").click();
     }
 
     private void clearCompleted() {
@@ -92,7 +83,7 @@ public class UserWorkflowsTest {
     }
 
     private void delete(String text) {
-        todo(text).hover().find(".destroy").click();
+        todos.findBy(exactText(text)).hover().find(".destroy").click();
     }
 }
 
