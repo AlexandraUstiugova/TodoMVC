@@ -1,7 +1,6 @@
 package com.taotas.todomvctest;
 
 import com.codeborne.selenide.Configuration;
-import com.codeborne.selenide.Selenide;
 import com.codeborne.selenide.SelenideElement;
 import org.junit.jupiter.api.Test;
 
@@ -17,7 +16,7 @@ public class UserWorkflowsTest {
     void todosCommonManagement() {
         Configuration.fastSetValue = true;
 
-        open("https://todomvc4tasj.herokuapp.com/");
+        openTodoMvc();
 
         add("a", "b", "c");
         todosShouldBe("a", "b", "c");
@@ -36,8 +35,8 @@ public class UserWorkflowsTest {
         itemsLeftShouldBe(1);
     }
 
-    private void open(String link) {
-        Selenide.open(link);
+    private void openTodoMvc() {
+        open("https://todomvc4tasj.herokuapp.com/");
         Wait().until(jsReturnsValue(
                 "return $._data($('#clear-completed').get(0), 'events')" +
                         ".hasOwnProperty('click')"));
