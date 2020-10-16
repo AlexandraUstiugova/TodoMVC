@@ -1,6 +1,5 @@
 package com.taotas.todomvctest;
 
-import com.codeborne.selenide.Configuration;
 import com.codeborne.selenide.ElementsCollection;
 import com.codeborne.selenide.SelenideElement;
 import org.junit.jupiter.api.Test;
@@ -11,12 +10,10 @@ import static com.codeborne.selenide.Condition.exactText;
 import static com.codeborne.selenide.Selenide.*;
 import static org.openqa.selenium.support.ui.ExpectedConditions.jsReturnsValue;
 
-public class UserWorkflowsTest {
+public class UserWorkflowsTest extends BaseTest {
 
     @Test
     void todosCommonManagement() {
-        Configuration.fastSetValue = true;
-
         openTodoMvc();
 
         add("a", "b", "c");
@@ -42,7 +39,7 @@ public class UserWorkflowsTest {
         String clearCompletedIsClickableScript = "return $._data(" +
                 "$('#clear-completed').get(0), 'events')" +
                 ".hasOwnProperty('click')";
-        open("https://todomvc4tasj.herokuapp.com/");
+        open("/");
         Wait().until(jsReturnsValue(clearCompletedIsClickableScript));
     }
 
