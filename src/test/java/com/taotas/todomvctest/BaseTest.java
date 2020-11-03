@@ -4,7 +4,11 @@ import com.codeborne.selenide.Configuration;
 
 public class BaseTest {
     {
-        Configuration.baseUrl = "https://todomvc4tasj.herokuapp.com";
+        Configuration.baseUrl = System.getProperty(
+                "selenide.baseUrl", "https://todomvc4tasj.herokuapp.com");
+        Configuration.timeout = Long.parseLong(System.getProperty(
+                "Selenide.timeout", "6000"));
+
         Configuration.fastSetValue = true;
     }
 }
